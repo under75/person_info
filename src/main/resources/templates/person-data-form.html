@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+<meta charset="utf-8">
+<meta http-equiv="x-ua-compatible" content="ie=edge">
+<title
+	th:text="${@environment.getProperty('app.name')} + ' - getPersonData/getPersonDataHistory'"></title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet"
+	th:href="@{/webjars/bootstrap/5.2.3/css/bootstrap.min.css}" />
+</head>
+<body>
+	<div class="container">
+		<div th:insert="menu :: navbar"></div>
+		<nav style="-bs-breadcrumb-divider: '&gt;';" aria-label="breadcrumb">
+			<ol class="breadcrumb ">
+				<li class="breadcrumb-item"><a href="/">PersonInfoService</a></li>
+				<li class="breadcrumb-item active" aria-current="page">getPersonData/getPersonDataHistory</li>
+			</ol>
+		</nav>
+		<form th:method="POST" th:action="@{/persdata}" id="persForm">
+			<div class="row">
+				<div class="col-sm">
+					<div class="form-group">
+						<label class="form-label" for="oip">ОИП</label> <input type="text"
+							th:field="*{searchParams.oip}" id="oip"
+							class="form-control form-control-sm"
+							th:classappend="${#fields.hasErrors('searchParams.oip')} ? 'is-invalid' : ''" />
+						<div class="invalid-feedback"
+							th:if="${#fields.hasErrors('searchParams.oip')}">некорректное
+							значение</div>
+					</div>
+				</div>
+				<div class="col-sm-4">
+					<div class="form-group">
+						<label class="form-label" for="policyType">Тип полиса</label> <select
+							id="policyType" th:field="*{searchParams.policyType}"
+							class="form-select form-select-sm">
+							<option value=""></option>
+							<option th:each="policyTypeEntry : ${policyTypes.entrySet}"
+								th:value="${policyTypeEntry.key}"
+								th:text="${policyTypeEntry.value}"
+								th:selected="${searchParams.policyType}"></option>
+						</select>
+					</div>
+				</div>
+				<div class="col-sm">
+					<div class="form-group">
+						<label class="form-label" for="policySer">Серия полиса</label> <input
+							type="text" th:field="*{searchParams.policySer}" id="policySer"
+							class="form-control form-control-sm"
+							th:classappend="${#fields.hasErrors('searchParams.policySer')} ? 'is-invalid' : ''"
+							placeholder="серия" />
+						<div class="invalid-feedback"
+							th:if="${#fields.hasErrors('searchParams.policySer')}">некорректное
+							значение</div>
+					</div>
+				</div>
+				<div class="col-sm">
+					<div class="form-group">
+						<label class="form-label" for="policyNum">Номер полиса</label> <input
+							type="text" th:field="*{searchParams.policyNum}" id="policyNum"
+							class="form-control form-control-sm"
+							th:classappend="${#fields.hasErrors('searchParams.policyNum')} ? 'is-invalid' : ''"
+							placeholder="номер" />
+						<div class="invalid-feedback"
+							th:if="${#fields.hasErrors('searchParams.policyNum')}">некорректное
+							значение</div>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-sm"></div>
+				<div class="col-sm-4">
+					<div class="form-group">
+						<label class="form-label" for="dudlType">Тип ДУдЛ</label> <select
+							id="dudlType" th:field="*{searchParams.dudlType}"
+							class="form-select form-select-sm"
+							th:classappend="${#fields.hasErrors('searchParams.dudlType')} ? 'is-invalid' : ''">
+							<option value=""></option>
+							<option th:each="dudlType : ${dudlTypes}"
+								th:value="${dudlType.docCode}" th:text="${dudlType.docName}"
+								th:selected="${searchParams.dudlType}"></option>
+						</select>
+						<div class="invalid-feedback"
+							th:if="${#fields.hasErrors('searchParams.dudlType')}">не
+							выбран тип</div>
+					</div>
+				</div>
+				<div class="col-sm">
+					<div class="form-group">
+						<label class="form-label" for="dudlSer">Серия ДУдЛ</label> <input
+							type="text" th:field="*{searchParams.dudlSer}" id="dudlSer"
+							class="form-control form-control-sm"
+							th:classappend="${#fields.hasErrors('searchParams.dudlSer')} ? 'is-invalid' : ''"
+							placeholder="серия" />
+						<div class="invalid-feedback"
+							th:if="${#fields.hasErrors('searchParams.dudlSer')}">некорректное
+							значение</div>
+					</div>
+				</div>
+				<div class="col-sm">
+					<div class="form-group">
+						<label class="form-label" for="dudlNum">Номер ДУдЛ</label> <input
+							type="text" th:field="*{searchParams.dudlNum}" id="policyNum"
+							class="form-control form-control-sm"
+							th:classappend="${#fields.hasErrors('searchParams.dudlNum')} ? 'is-invalid' : ''"
+							placeholder="номер" />
+						<div class="invalid-feedback"
+							th:if="${#fields.hasErrors('searchParams.dudlNum')}">некорректное
+							значение</div>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-sm">
+					<div class="form-group">
+						<label class="form-label" for="lastName">Фамилия</label> <input
+							type="text" th:field="*{searchParams.lastName}" id="dudlSer"
+							class="form-control form-control-sm"
+							th:classappend="${#fields.hasErrors('searchParams.lastName')} ? 'is-invalid' : ''" />
+						<div class="invalid-feedback"
+							th:if="${#fields.hasErrors('searchParams.dudlSer')}">некорректное
+							значение</div>
+					</div>
+				</div>
+				<div class="col-sm">
+					<div class="form-group">
+						<label class="form-label" for="firstName">Имя</label> <input
+							type="text" th:field="*{searchParams.firstName}" id="dudlSer"
+							class="form-control form-control-sm"
+							th:classappend="${#fields.hasErrors('searchParams.firstName')} ? 'is-invalid' : ''" />
+						<div class="invalid-feedback"
+							th:if="${#fields.hasErrors('searchParams.dudlSer')}">некорректное
+							значение</div>
+					</div>
+				</div>
+				<div class="col-sm">
+					<div class="form-group">
+						<label class="form-label" for="patronymic">Отчество</label> <input
+							type="text" th:field="*{searchParams.patronymic}" id="patronymic"
+							class="form-control form-control-sm"
+							th:classappend="${#fields.hasErrors('searchParams.patronymic')} ? 'is-invalid' : ''" />
+						<div class="invalid-feedback"
+							th:if="${#fields.hasErrors('searchParams.patronymic')}">некорректное
+							значение</div>
+					</div>
+				</div>
+				<div class="col-sm">
+					<div class="form-group">
+						<label class="form-label" for="snils">СНИЛС</label> <input
+							type="text" th:field="*{searchParams.snils}" id="snils"
+							class="form-control form-control-sm"
+							th:classappend="${#fields.hasErrors('searchParams.snils')} ? 'is-invalid' : ''"
+							placeholder="СНИЛС" />
+						<div class="invalid-feedback"
+							th:if="${#fields.hasErrors('searchParams.snils')}">некорректное
+							значение</div>
+					</div>
+				</div>
+				<div class="col-sm">
+					<div class="form-group">
+						<label class="form-label" for="birthDay">Дата рождения</label><input
+							type="date" th:field="*{searchParams.birthDay}" id="birthDay"
+							class="form-control form-control-sm"
+							th:classappend="${#fields.hasErrors('searchParams.birthDay')} ? 'is-invalid' : ''" />
+						<div class="invalid-feedback"
+							th:if="${#fields.hasErrors('searchParams.birthDay')}">некорректное
+							значение</div>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-sm">Дата,на которую выдать состояние</div>
+				<div class="col-sm">
+					<div class="form-group">
+						<select class="custom-select custom-select-sm"
+							th:onchange="|changeAccess(this.value)|"
+							th:field="*{searchParams.historical}">
+							<option value="0">Актуально на дату</option>
+							<option value="1">Искать в истории</option>
+						</select>
+					</div>
+				</div>
+				<div class="col-sm">
+					<div class="form-group">
+						<label class="form-label" for="dt">На дату</label><input
+							type="date" th:field="*{searchParams.dt}" id="dt"
+							class="form-control form-control-sm"
+							th:disabled="${searchParams.historical}"
+							title="состояние на дату"
+							th:classappend="${#fields.hasErrors('searchParams.dt')} ? 'is-invalid' : ''" />
+						<div class="invalid-feedback"
+							th:if="${#fields.hasErrors('searchParams.birthDay')}">некорректное
+							значение</div>
+					</div>
+				</div>
+				<div class="col-sm">
+					<div class="form-group">
+						<label class="form-label" for="dtFrom">Начало периода</label><input
+							type="date" th:field="*{searchParams.dtFrom}" id="dtFrom"
+							class="form-control form-control-sm"
+							th:disabled="${!searchParams.historical}" title="начало периода"
+							th:classappend="${#fields.hasErrors('searchParams.dtFrom')} ? 'is-invalid' : ''" />
+						<div class="invalid-feedback"
+							th:if="${#fields.hasErrors('searchParams.dtFrom')}">некорректное
+							значение</div>
+					</div>
+				</div>
+				<div class="col-sm">
+					<div class="form-group">
+						<label class="form-label" for="dtTo">Конец периода</label><input
+						type="date" th:field="*{searchParams.dtTo}" id="dtTo"
+						class="form-control form-control-sm"
+						th:disabled="${!searchParams.historical}" title="конец периода" />
+						<div class="invalid-feedback"
+							th:if="${#fields.hasErrors('searchParams.dtTo')}">некорректное
+							значение</div>
+					</div>
+				</div>
+			</div>
+		</form>
+	</div>
+	<footer class="text-center text-lg-start" th:fragment="footer"
+		th:insert="copyright"> </footer>
+	<script th:src="@{/webjars/bootstrap/5.2.3/js/bootstrap.bundle.min.js}"></script>
+</body>
+</html>
