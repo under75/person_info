@@ -6,7 +6,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "spr_doc")
+@Table(name = "v_spr_dok")
 public class DudlType {
 	
 	@Id

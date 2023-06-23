@@ -1,6 +1,12 @@
 package ru.sartfoms.personinfo.model;
 
+import java.util.Collection;
+
 import javax.validation.constraints.Size;
+
+import org.springframework.util.StringUtils;
+
+import ru.sartfoms.personinfo.service.PersonDataService.Show;
 
 public class PersDataParameters {
 	@Size(max=12)
@@ -15,6 +21,7 @@ public class PersDataParameters {
 	private String dudlSer;
 	@Size(max=20)
 	private String dudlNum;
+	private String dudlEffDate;
 	@Size(max=14)
 	private String snils;
 	private String birthDay;
@@ -28,7 +35,10 @@ public class PersDataParameters {
 	private String dt;
 	private String dtFrom;
 	private String dtTo;
-	private String show;
+	private String show = StringUtils.arrayToCommaDelimitedString(Show.values());
+	private String dateFrom;
+	private String dateTo;
+	private Collection<Long> selectedRows;
 	
 	public String getOip() {
 		return oip;
@@ -131,5 +141,29 @@ public class PersDataParameters {
 	}
 	public void setShow(String show) {
 		this.show = show;
+	}
+	public String getDateFrom() {
+		return dateFrom;
+	}
+	public String getDateTo() {
+		return dateTo;
+	}
+	public Collection<Long> getSelectedRows() {
+		return selectedRows;
+	}
+	public void setDateFrom(String dateFrom) {
+		this.dateFrom = dateFrom;
+	}
+	public void setDateTo(String dateTo) {
+		this.dateTo = dateTo;
+	}
+	public void setSelectedRows(Collection<Long> selectedRows) {
+		this.selectedRows = selectedRows;
+	}
+	public String getDudlEffDate() {
+		return dudlEffDate;
+	}
+	public void setDudlEffDate(String dudlEffDate) {
+		this.dudlEffDate = dudlEffDate;
 	}
 }

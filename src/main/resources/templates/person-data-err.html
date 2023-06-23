@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+<meta charset="utf-8">
+<meta http-equiv="x-ua-compatible" content="ie=edge">
+<title
+	th:text="${@environment.getProperty('app.name')} + ' - Ошибки, препятствующие получению персональных
+	данных'"></title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet"
+	th:href="@{/webjars/bootstrap/5.2.3/css/bootstrap.min.css}" />
+</head>
+<body>
+	<div class="container">
+	<br />
+		<div class="card border-danger">
+			<div class="card-header alert alert-danger">Ошибки, препятствующие получению
+				персональных данных</div>
+			<div class="card-body">
+				<table class="table table-sm">
+					<thead>
+						<tr class="small">
+							<th>Код</th>
+							<th>Текст сообщения</th>
+							<th>Поле с ошибкой</th>
+							<th>Значение поля</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr th:each="error : ${errors}" class='small'>
+							<td th:text="${error.code}" />
+							<td th:text="${error.message}" />
+							<td th:text="${error.tag}" />
+							<td th:text="${error.value}" />
+						</tr>
+					</tbody>
+				</table>
+				<input type="button" value="Выход"
+								class="btn btn-sm btn-secondary" onclick="window.close();" />
+			</div>
+		</div>
+	</div>
+	<footer class="text-center text-lg-start fixed-bottom"
+		th:fragment="footer" th:insert="copyright">
+	</footer>
+	<script th:src="@{/webjars/bootstrap/5.2.3/js/bootstrap.bundle.min.js}"></script>
+</body>

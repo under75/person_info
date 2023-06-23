@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+<meta charset="utf-8">
+<meta http-equiv="x-ua-compatible" content="ie=edge">
+<title
+	th:text="${@environment.getProperty('app.name')} + ' - Информация о персоне'"></title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet"
+	th:href="@{/webjars/bootstrap/5.2.3/css/bootstrap.min.css}" />
+</head>
+<body>
+	<div class="container">
+		<h4>Персональные данные</h4>
+		<div class="accordion" id="accordion">
+			<div class="accordion-item">
+				<h2 class="accordion-header" id="headingOip">
+					<button class="accordion-button collapsed" type="button"
+						data-bs-toggle="collapse" data-bs-target="#collapseOip"
+						aria-expanded="false" aria-controls="collapseOip">
+						Обезличенный идентификатор
+						персоны</button>
+				</h2>
+				<div id="collapseOip" class="accordion-collapse collapse"
+					aria-labelledby="headingOne" data-bs-parent="#accordion">
+					<div class="accordion-body">
+						<p class="card-text" th:text="${personData.oipRes}"></p>
+					</div>
+				</div>
+			</div>
+			<th:block 
+				th:if="${showList.contains(T(ru.sartfoms.personinfo.service.PersonDataService.Show).Person.name()) || showList.size() == 0}"
+				th:insert="show :: Person"></th:block> 
+			<th:block
+				th:if="${showList.contains(T(ru.sartfoms.personinfo.service.PersonDataService.Show).OmsPolicy.name()) || showList.size() == 0}"
+				th:insert="show :: OmsPolicy"></th:block>
+			<th:block
+				th:if="${showList.contains(T(ru.sartfoms.personinfo.service.PersonDataService.Show).Dudl.name()) || showList.size() == 0}"
+				th:insert="show :: Dudl"></th:block>
+			<th:block
+				th:if="${showList.contains(T(ru.sartfoms.personinfo.service.PersonDataService.Show).Address.name()) || showList.size() == 0}"
+				th:insert="show :: Address"></th:block>
+			<th:block
+				th:if="${showList.contains(T(ru.sartfoms.personinfo.service.PersonDataService.Show).Attach.name()) || showList.size() == 0}"
+				th:insert="show :: Attach"></th:block><!--
+			<div
+				th:if="${showList.contains(T(ru.tfoms.applgar.service.PersDataService.Show).Contact.name()) || showList.size() == 0}"
+				th:insert="show :: Contact"></div>
+			<div
+				th:if="${showList.contains(T(ru.tfoms.applgar.service.PersDataService.Show).Snils.name()) || showList.size() == 0}"
+				th:insert="show :: Snils"></div>
+			<div
+				th:if="${showList.contains(T(ru.tfoms.applgar.service.PersDataService.Show).SocialStatus.name()) || showList.size() == 0}"
+				th:insert="show :: SocialStatus"></div>
+			<div
+				th:if="${showList.contains(T(ru.tfoms.applgar.service.PersDataService.Show).Ern.name()) || showList.size() == 0}"
+				th:insert="show :: Ern"></div>-->
+		</div>
+		<br />
+		<div class="row justify-content-between">
+			<div class="col-sm">
+				<input type="button" value="В Excel"
+					th:onclick="|location.href='/pers/res/excel?rid=${personData.rid}'|"
+					class="btn btn-sm btn-primary" />
+			</div>
+			<div class="col-sm-1">
+				<input type="button" value="Выход" class="btn btn-sm btn-dark"
+					onclick="window.close();" />
+			</div>
+		</div>
+	</div>
+	<footer class="text-center text-lg-start" th:fragment="footer"
+		th:insert="copyright"> </footer>
+	<script th:src="@{/webjars/bootstrap/5.2.3/js/bootstrap.bundle.min.js}"></script>
+</body>
