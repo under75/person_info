@@ -43,29 +43,26 @@
 				th:insert="show :: Address"></th:block>
 			<th:block
 				th:if="${showList.contains(T(ru.sartfoms.personinfo.service.PersonDataService.Show).Attach.name()) || showList.size() == 0}"
-				th:insert="show :: Attach"></th:block><!--
-			<div
-				th:if="${showList.contains(T(ru.tfoms.applgar.service.PersDataService.Show).Contact.name()) || showList.size() == 0}"
-				th:insert="show :: Contact"></div>
-			<div
-				th:if="${showList.contains(T(ru.tfoms.applgar.service.PersDataService.Show).Snils.name()) || showList.size() == 0}"
-				th:insert="show :: Snils"></div>
-			<div
-				th:if="${showList.contains(T(ru.tfoms.applgar.service.PersDataService.Show).SocialStatus.name()) || showList.size() == 0}"
-				th:insert="show :: SocialStatus"></div>
-			<div
-				th:if="${showList.contains(T(ru.tfoms.applgar.service.PersDataService.Show).Ern.name()) || showList.size() == 0}"
-				th:insert="show :: Ern"></div>-->
+				th:insert="show :: Attach"></th:block>
+			<th:block
+				th:if="${showList.contains(T(ru.sartfoms.personinfo.service.PersonDataService.Show).Contact.name()) || showList.size() == 0}"
+				th:insert="show :: Contact"></th:block>
+			<th:block
+				th:if="${showList.contains(T(ru.sartfoms.personinfo.service.PersonDataService.Show).Snils.name()) || showList.size() == 0}"
+				th:insert="show :: Snils"></th:block>
+			<th:block
+				th:if="${showList.contains(T(ru.sartfoms.personinfo.service.PersonDataService.Show).SocialStatus.name()) || showList.size() == 0}"
+				th:insert="show :: SocialStatus"></th:block>
+			<th:block
+				th:if="${showList.contains(T(ru.sartfoms.personinfo.service.PersonDataService.Show).Ern.name()) || showList.size() == 0}"
+				th:insert="show :: Ern"></th:block>
 		</div>
 		<br />
-		<div class="row justify-content-between">
+		<div class="row">
 			<div class="col-sm">
 				<input type="button" value="В Excel"
-					th:onclick="|location.href='/pers/res/excel?rid=${personData.rid}'|"
-					class="btn btn-sm btn-primary" />
-			</div>
-			<div class="col-sm-1">
-				<input type="button" value="Выход" class="btn btn-sm btn-dark"
+					th:onclick="|location.href='/persdata/res/excel?rid=${personData.rid}'|"
+					class="btn btn-sm btn-info" />&nbsp;<input type="button" value="Выход" class="btn btn-sm btn-dark"
 					onclick="window.close();" />
 			</div>
 		</div>
@@ -73,4 +70,8 @@
 	<footer class="text-center text-lg-start" th:fragment="footer"
 		th:insert="copyright"> </footer>
 	<script th:src="@{/webjars/bootstrap/5.2.3/js/bootstrap.bundle.min.js}"></script>
+	<script type="text/javascript">
+	const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+	const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+	</script>
 </body>

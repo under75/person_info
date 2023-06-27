@@ -224,7 +224,7 @@
 			<div class="row alert alert-danger" role="alert"
 				th:if="${#fields.hasErrors('searchParams')}"
 				th:errors="*{searchParams}"></div>
-			<hr>
+			<hr/>
 			<div class="row">
 				<div class="col-sm">
 					<input type="submit" value="Поиск" class="btn btn-sm btn-primary"
@@ -239,7 +239,7 @@
 						name="page" />
 				</div>
 			</div>
-			<hr>
+			<hr/>
 			<div th:if="${persDataPage.content.size} > 0">
 				<table class="table table-sm">
 					<thead class="thead-dark">
@@ -366,6 +366,12 @@
 				form.rid.value = rid;
 				form.submit();
 			}
+		}
+		function toExcel() {
+			form = document.getElementById("persForm");	
+			form.action = "/persdata/excel";
+			form.submit();
+			form.action = "/persdata";
 		}
 	</script>
 	<script th:src="@{/webjars/bootstrap/5.2.3/js/bootstrap.bundle.min.js}"></script>

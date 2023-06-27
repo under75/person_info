@@ -66,7 +66,7 @@ public class PersonDataService {
 		return dudlTypeRepository.findAllByOrderByDocName();
 	}
 
-	public Page<PersonData> getPersDataPage(PersDataParameters searchParams, String userName, Optional<Integer> page) {
+	public Page<PersonData> getDataPage(PersDataParameters searchParams, String userName, Optional<Integer> page) {
 		int currentPage = page.orElse(1);
 		Page<PersonData> dataPage;
 		PageRequest pageRequest = PageRequest.of(currentPage - 1, PAGE_SIZE);

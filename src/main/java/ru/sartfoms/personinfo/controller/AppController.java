@@ -3,6 +3,8 @@ package ru.sartfoms.personinfo.controller;
 import static ru.sartfoms.personinfo.service.PersonDataService.policyType;
 import static ru.sartfoms.personinfo.service.PersonDataService.resultType;
 
+import java.io.IOException;
+import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -10,7 +12,12 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -21,24 +28,45 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import ru.sartfoms.personinfo.entity.Address;
+import ru.sartfoms.personinfo.entity.Attach;
+import ru.sartfoms.personinfo.entity.Contact;
 import ru.sartfoms.personinfo.entity.Dudl;
+import ru.sartfoms.personinfo.entity.Ern;
 import ru.sartfoms.personinfo.entity.House;
 import ru.sartfoms.personinfo.entity.MPIError;
+import ru.sartfoms.personinfo.entity.MergeAncessorOip;
+import ru.sartfoms.personinfo.entity.PersCriteria;
+import ru.sartfoms.personinfo.entity.PersCriteriaRes;
 import ru.sartfoms.personinfo.entity.Person;
 import ru.sartfoms.personinfo.entity.PersonData;
 import ru.sartfoms.personinfo.entity.Policy;
-import ru.sartfoms.personinfo.entity.AsAddrObj;
-import ru.sartfoms.personinfo.entity.Attach;
+import ru.sartfoms.personinfo.entity.Snils;
+import ru.sartfoms.personinfo.entity.SocialStatus;
+import ru.sartfoms.personinfo.exception.ExcelGeneratorException;
+import ru.sartfoms.personinfo.model.AncessorOipParameters;
+import ru.sartfoms.personinfo.model.PersCritParameters;
 import ru.sartfoms.personinfo.model.PersDataParameters;
 import ru.sartfoms.personinfo.service.AddressService;
 import ru.sartfoms.personinfo.service.AttachService;
+import ru.sartfoms.personinfo.service.ContactService;
 import ru.sartfoms.personinfo.service.DudlService;
+import ru.sartfoms.personinfo.service.DudlTypeService;
+import ru.sartfoms.personinfo.service.ErnService;
+import ru.sartfoms.personinfo.service.ExcelService;
 import ru.sartfoms.personinfo.service.MPIErrorService;
+import ru.sartfoms.personinfo.service.MergeAncessorOipService;
+import ru.sartfoms.personinfo.service.OkatoService;
+import ru.sartfoms.personinfo.service.OksmService;
+import ru.sartfoms.personinfo.service.PersCriteriaResService;
+import ru.sartfoms.personinfo.service.PersCriteriaService;
 import ru.sartfoms.personinfo.service.PersonDataService;
 import ru.sartfoms.personinfo.service.PersonService;
 import ru.sartfoms.personinfo.service.PolicyService;
+import ru.sartfoms.personinfo.service.SnilsService;
+import ru.sartfoms.personinfo.service.SocialStatusService;
 
 @Controller
 public class AppController {
@@ -49,11 +77,27 @@ public class AppController {
 	private final DudlService dudlService;
 	private final AddressService addressService;
 	private final AttachService attachService;
+	private final ContactService contactService;
+	private final SnilsService snilsService;
+	private final SocialStatusService socialStatusService;
+	private final ErnService ernService;
+	private final ExcelService excelService;
+	private final PersCriteriaService persCriteriaService;
+	private final OkatoService okatoService;
+	private final OksmService oksmService;
+	private final DudlTypeService dudlTypeService;
+	private final PersCriteriaResService persCriteriaResService;
+	private final MergeAncessorOipService mergeAncessorOipService;
 	@Autowired
 	SmartValidator validator;
 
 	public AppController(PersonDataService personDataService, PersonService personService, PolicyService policyService,
-			MPIErrorService mpiErrorService, DudlService dudlService, AddressService addressService, AttachService attachService) {
+			MPIErrorService mpiErrorService, DudlService dudlService, AddressService addressService,
+			AttachService attachService, ContactService contactService, SnilsService snilsService,
+			SocialStatusService socialStatusService, ErnService ernService, ExcelService excelService,
+			PersCriteriaService persCriteriaService, OkatoService okatoService, OksmService oksmService,
+			DudlTypeService dudlTypeService, PersCriteriaResService persCriteriaResService,
+			MergeAncessorOipService mergeAncessorOipService) {
 		this.personDataService = personDataService;
 		this.personService = personService;
 		this.policyService = policyService;
@@ -61,6 +105,17 @@ public class AppController {
 		this.dudlService = dudlService;
 		this.addressService = addressService;
 		this.attachService = attachService;
+		this.contactService = contactService;
+		this.snilsService = snilsService;
+		this.socialStatusService = socialStatusService;
+		this.ernService = ernService;
+		this.excelService = excelService;
+		this.persCriteriaService = persCriteriaService;
+		this.okatoService = okatoService;
+		this.oksmService = oksmService;
+		this.dudlTypeService = dudlTypeService;
+		this.persCriteriaResService = persCriteriaResService;
+		this.mergeAncessorOipService = mergeAncessorOipService;
 	}
 
 	@RequestMapping("/")
@@ -78,7 +133,7 @@ public class AppController {
 		model.addAttribute("dudlTypes", personDataService.getDudlTypes());
 
 		Optional<Integer> page = Optional.of(1);
-		Page<PersonData> persDataPage = personDataService.getPersDataPage(searchParams, userName, page);
+		Page<PersonData> persDataPage = personDataService.getDataPage(searchParams, userName, page);
 		model.addAttribute("persDataPage", persDataPage);
 
 		return "person-data-form";
@@ -102,10 +157,28 @@ public class AppController {
 		if (!bindingResult.hasErrors() && !page.isPresent())
 			personDataService.saveRequest(searchParams, userName);
 
-		Page<PersonData> persDataPage = personDataService.getPersDataPage(searchParams, userName, page);
+		Page<PersonData> persDataPage = personDataService.getDataPage(searchParams, userName, page);
 		model.addAttribute("persDataPage", persDataPage);
 
 		return "person-data-form";
+	}
+
+	@PostMapping("/persdata/excel")
+	@ResponseBody
+	public ResponseEntity<?> download(Model model, @ModelAttribute("persSParam") PersDataParameters persSParam) {
+		if (persSParam.getSelectedRows() == null) {
+			return new ResponseEntity<String>("<h1>Не выбраны строки для отчета в Excel</h1>", HttpStatus.BAD_REQUEST);
+		}
+		ResponseEntity<?> resource;
+		try {
+			resource = ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=report.xlsx")
+					.contentType(MediaType.parseMediaType("application/vnd.ms-excel"))
+					.body(new InputStreamResource(excelService.createExcel(persSParam.getSelectedRows())));
+		} catch (IOException | ExcelGeneratorException e) {
+			return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+
+		return resource;
 	}
 
 	@PostMapping("/persdata/res")
@@ -118,7 +191,7 @@ public class AppController {
 		Collection<MPIError> errors = mpiErrorService.findAllByRid(rid);
 		if (errors.size() > 0) {
 			model.addAttribute("errors", errors);
-			return "person-data-err";
+			return "mpi-err";
 		}
 
 		Collection<String> showList = Arrays
@@ -128,38 +201,21 @@ public class AppController {
 		Collection<Dudl> dudls = dudlService.findAllByRid(rid);
 		Collection<Address> addresses = addressService.findAllByRid(rid);
 		Map<Integer, House> houses = new HashMap<>();
-//		Map<Integer, AsAddrObj> streets = new HashMap<>();
 		Map<Integer, String> addrChains = new HashMap<>();
 		addresses.forEach(t -> {
 			if (t.getHsguid() != null) {
 				houses.put(t.getNr(), addressService.getHouseByObjectguid(t.getHsguid()));
 			}
 			if (t.getAoguid() != null) {
-//				streets.put(t.getNr(), addressService.getAddrByObjectguid(t.getAoguid()));
 				addrChains.put(t.getNr(), addressService.getAddressChain(t.getAoguid()));
 			}
 		});
-//
+
 		Collection<Attach> attachies = attachService.findAllByRid(rid);
-//		Collection<Contact> contacts = service.getContactsByRid(rid);
-//		Collection<Snils> snilses = service.getSnilsesByRid(rid);
-//		Collection<SocialStatus> statuses = service.getSocialStatusesByRid(rid);
-//		Collection<Ern> erns = service.getErnsByRid(rid);
-//
-//		model.addAttribute("showList", showList);
-//		model.addAttribute("resultTypes", resultType);
-//		model.addAttribute("personData", personData);
-//		model.addAttribute("persons", persons);
-//		model.addAttribute("policies", policies);
-//		model.addAttribute("dudls", dudls);
-//		model.addAttribute("addresses", addresses);
-//		model.addAttribute("houses", houses);
-//		model.addAttribute("streets", streets);
-//		model.addAttribute("attaches", attachies);
-//		model.addAttribute("contacts", contacts);
-//		model.addAttribute("snilses", snilses);
-//		model.addAttribute("statuses", statuses);
-//		model.addAttribute("erns", erns);
+		Collection<Contact> contacts = contactService.findAllByRid(rid);
+		Collection<Snils> snilses = snilsService.findAllByRid(rid);
+		Collection<SocialStatus> statuses = socialStatusService.findAllByRid(rid);
+		Collection<Ern> erns = ernService.findAllByRid(rid);
 
 		model.addAttribute("resultTypes", resultType);
 		model.addAttribute("personData", personData);
@@ -169,11 +225,131 @@ public class AppController {
 		model.addAttribute("dudls", dudls);
 		model.addAttribute("addresses", addresses);
 		model.addAttribute("houses", houses);
-//		model.addAttribute("streets", streets);
 		model.addAttribute("addrChains", addrChains);
 		model.addAttribute("attaches", attachies);
+		model.addAttribute("contacts", contacts);
+		model.addAttribute("snilses", snilses);
+		model.addAttribute("statuses", statuses);
+		model.addAttribute("erns", erns);
 
 		return "person-data-res";
+	}
+
+	@GetMapping("/persdata/res/excel")
+	@ResponseBody
+	public ResponseEntity<?> download(Model model, @RequestParam("rid") Long rid) {
+		ResponseEntity<?> resource;
+		try {
+			resource = ResponseEntity.ok()
+					.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=report" + rid + ".xlsx")
+					.contentType(MediaType.parseMediaType("application/vnd.ms-excel"))
+					.body(new InputStreamResource(excelService.createExcel(rid)));
+		} catch (IOException | ExcelGeneratorException e) {
+			return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+
+		return resource;
+	}
+
+	@GetMapping("/perscrit")
+	public String persCriteriaForm(Model model) throws ParseException {
+		String userName = SecurityContextHolder.getContext().getAuthentication().getName();
+		PersCritParameters persCritSParam = new PersCritParameters();
+		model.addAttribute("persCritSParam", persCritSParam);
+		model.addAttribute("okatos", okatoService.findAll());
+		model.addAttribute("oksms", oksmService.findAll());
+		model.addAttribute("policyTypes", policyType);
+		model.addAttribute("dudlTypes", dudlTypeService.findAll());
+
+		Page<PersCriteria> persCritDataPage = persCriteriaService.getDataPage(persCritSParam, userName, Optional.of(1));
+		model.addAttribute("persCritDataPage", persCritDataPage);
+
+		return "person-crit-form";
+	}
+
+	@PostMapping("/perscrit")
+	public String persCriteriaForm(Model model, @ModelAttribute("persCritSParam") PersCritParameters persCritSParam,
+			BindingResult bindingResult, @RequestParam("page") Optional<Integer> page) throws ParseException {
+		String userName = SecurityContextHolder.getContext().getAuthentication().getName();
+		model.addAttribute("okatos", okatoService.findAll());
+		model.addAttribute("oksms", oksmService.findAll());
+		model.addAttribute("policyTypes", policyType);
+		model.addAttribute("dudlTypes", dudlTypeService.findAll());
+
+		if (!page.isPresent()) {
+			persCriteriaService.validate(persCritSParam, bindingResult);
+			validator.validate(persCritSParam, bindingResult);
+		}
+
+		if (!bindingResult.hasErrors() && !page.isPresent()) {
+			persCriteriaService.saveRequest(persCritSParam, userName);
+		}
+
+		Page<PersCriteria> persCritDataPage = persCriteriaService.getDataPage(persCritSParam, userName, page);
+		model.addAttribute("persCritDataPage", persCritDataPage);
+
+		return "person-crit-form";
+	}
+
+	@PostMapping("/perscrit/res")
+	public String persCriteriaResult(Model model, @RequestParam("rid") Long rid) {
+
+		Collection<MPIError> errors = mpiErrorService.findAllByRid(rid);
+		if (errors.size() > 0) {
+			model.addAttribute("errors", errors);
+			return "mpi-err";
+		}
+
+		Collection<PersCriteriaRes> persons = persCriteriaResService.findAllByRid(rid);
+		model.addAttribute("persons", persons);
+
+		return "person-crit-res";
+
+	}
+
+	@GetMapping("/ancessor")
+	public String mergeAncessorOip(Model model) {
+		String userName = SecurityContextHolder.getContext().getAuthentication().getName();
+
+		AncessorOipParameters formParams = new AncessorOipParameters();
+		model.addAttribute("searchParams", formParams);
+
+		Optional<Integer> page = Optional.of(1);
+		Page<MergeAncessorOip> persDataPage = mergeAncessorOipService.getDataPage(formParams, userName, page);
+		model.addAttribute("persDataPage", persDataPage);
+
+		return "ancessor-oip";
+
+	}
+
+	@PostMapping("/ancessor")
+	public String mergeAncessorOip(Model model, @ModelAttribute("searchParams") AncessorOipParameters searchParams,
+			BindingResult bindingResult, @RequestParam("page") Optional<Integer> page) {
+		String userName = SecurityContextHolder.getContext().getAuthentication().getName();
+		
+		if (!page.isPresent())
+			validator.validate(searchParams, bindingResult);
+
+		if (!bindingResult.hasErrors() && !page.isPresent())
+			mergeAncessorOipService.saveRequest(searchParams, userName);
+
+		Page<MergeAncessorOip> persDataPage = mergeAncessorOipService.getDataPage(searchParams, userName, page);
+		model.addAttribute("persDataPage", persDataPage);
+
+		return "ancessor-oip";
+
+	}
+
+	@PostMapping("/ancessor/res")
+	public String ancessorOipResult(Model model, @RequestParam("rid") Long rid) {
+
+		Collection<MPIError> errors = mpiErrorService.findAllByRid(rid);
+		if (errors.size() > 0) {
+			model.addAttribute("errors", errors);
+			return "mpi-err";
+		}
+
+		return "error/404";
 	}
 
 }

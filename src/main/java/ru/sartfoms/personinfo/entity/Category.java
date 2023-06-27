@@ -7,7 +7,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "v013", schema = "OMCOWNER")
-public class PersCategory {
+public class Category {
 	
 	@Id
 	@Column(name = "idkat")
@@ -16,7 +16,7 @@ public class PersCategory {
 	@Column(name = "katname")	
 	private String name;
 	
-	public PersCategory() {
+	public Category() {
 	}
 
 	public Integer getId() {

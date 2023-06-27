@@ -117,7 +117,7 @@ public class Policy {
 
 	@OneToOne
 	@JoinColumn(name = "pcycategory", referencedColumnName = "idkat")
-	private PersCategory pcyCategory;
+	private Category pcyCategory;
 
 	@Column(name = "fam")
 	private String lastName;
@@ -313,11 +313,11 @@ public class Policy {
 		this.uekNum = uekNum;
 	}
 
-	public PersCategory getPcyCategory() {
+	public Category getPcyCategory() {
 		return pcyCategory;
 	}
 
-	public void setPcyCategory(PersCategory pcyCategory) {
+	public void setPcyCategory(Category pcyCategory) {
 		this.pcyCategory = pcyCategory;
 	}
 

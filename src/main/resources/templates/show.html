@@ -38,8 +38,7 @@
 								th:text="${person.birthOksm != null ? person.birthOksm.name2 : ''}" />
 							<td
 								th:text="${#temporals.format(person.deathDate, 'dd.MM.yyyy')}" />
-							<td
-								th:text="${#temporals.format(person.whenMerged, 'dd.MM.yyyy HH:mm:ss')}" />
+							<td><a th:text="${#temporals.format(person.whenMerged, 'dd.MM.yyyy HH:mm:ss')}" href="#" data-bs-toggle="tooltip" data-bs-title="Необходимо запросить ОИП главной персоны методом getMergeAncessorOip"></a></td>
 							<td th:text="${person.status}" />
 							<td
 								th:text="${#temporals.format(person.dateEdit, 'dd.MM.yyyy HH:mm:ss')}" />
@@ -382,18 +381,17 @@
 			</div>
 		</div>
 	</div>
-	<!-- 
-	<div class="card" th:fragment="Contact">
-		<div class="card-header">
+	<div class="accordion-item" th:fragment="Contact">
+		<h2 class="accordion-header" id="headingContact">
 			<button
-				th:text="${resultTypes.get(T(ru.tfoms.applgar.service.PersDataService.Show).Contact)}"
-				class="btn btn-link" data-toggle="collapse"
-				data-target="#collapseContact" aria-expanded="false"
+				th:text="${resultTypes.get(T(ru.sartfoms.personinfo.service.PersonDataService.Show).Contact)}"
+				class="accordion-button collapsed" data-bs-toggle="collapse"
+				data-bs-target="#collapseContact" aria-expanded="false"
 				aria-controls="collapseContact"></button>
-		</div>
-		<div id="collapseContact" class="collapse"
-			aria-labelledby="headingOne" data-parent="#accordion">
-			<div class="card-body">
+		</h2>
+		<div id="collapseContact"  class="accordion-collapse collapse"
+			aria-labelledby="headingContact" data-bs-parent="#accordion">
+			<div class="accordion-body">
 				<table class="table table-sm" th:if="${contacts.size > 0}">
 					<thead>
 						<tr class="small">
@@ -420,17 +418,17 @@
 			</div>
 		</div>
 	</div>
-	<div class="card" th:fragment="Snils">
-		<div class="card-header">
+	<div class="accordion-item" th:fragment="Snils">
+		<h2 class="accordion-header" id="headingSnils">
 			<button
-				th:text="${resultTypes.get(T(ru.tfoms.applgar.service.PersDataService.Show).Snils)}"
-				class="btn btn-link" data-toggle="collapse"
-				data-target="#collapseSnils" aria-expanded="false"
+				th:text="${resultTypes.get(T(ru.sartfoms.personinfo.service.PersonDataService.Show).Snils)}"
+				class="accordion-button collapsed" data-bs-toggle="collapse"
+				data-bs-target="#collapseSnils" aria-expanded="false"
 				aria-controls="collapseSnils"></button>
-		</div>
-		<div id="collapseSnils" class="collapse" aria-labelledby="headingOne"
-			data-parent="#accordion">
-			<div class="card-body">
+		</h2>
+		<div id="collapseSnils" class="accordion-collapse collapse"
+			aria-labelledby="headingSnils" data-bs-parent="#accordion">
+			<div class="accordion-body">
 				<table class="table table-sm" th:if="${snilses.size > 0}">
 					<thead>
 						<tr class="small">
@@ -455,17 +453,17 @@
 			</div>
 		</div>
 	</div>
-	<div class="card" th:fragment="SocialStatus">
-		<div class="card-header">
+	<div class="accordion-item" th:fragment="SocialStatus">
+		<h2 class="accordion-header" id="headingSocialStatus">
 			<button
-				th:text="${resultTypes.get(T(ru.tfoms.applgar.service.PersDataService.Show).SocialStatus)}"
-				class="btn btn-link" data-toggle="collapse"
-				data-target="#collapseSocialStatus" aria-expanded="false"
+				th:text="${resultTypes.get(T(ru.sartfoms.personinfo.service.PersonDataService.Show).SocialStatus)}"
+				class="accordion-button collapsed" data-bs-toggle="collapse"
+				data-bs-target="#collapseSocialStatus" aria-expanded="false"
 				aria-controls="collapseSocialStatus"></button>
-		</div>
-		<div id="collapseSocialStatus" class="collapse"
-			aria-labelledby="headingOne" data-parent="#accordion">
-			<div class="card-body">
+		</h2>
+		<div id="collapseSocialStatus" class="accordion-collapse collapse"
+			aria-labelledby="headingSocialStatus" data-bs-parent="#accordion">
+			<div class="accordion-body">
 				<table class="table table-sm" th:if="${statuses.size > 0}">
 					<thead>
 						<tr class="small">
@@ -483,24 +481,24 @@
 							<td
 								th:text="${status.dsource != null ? status.dsource.title : status.dsourceStr}" />
 							<td th:text="${status.descr}" />
-							<td th:text="${#dates.format(status.regDate, 'dd.MM.yyyy')}" />
+							<td th:text="${#temporals.format(status.regDate, 'dd.MM.yyyy')}" />
 						</tr>
 					</tbody>
 				</table>
 			</div>
 		</div>
 	</div>
-	<div class="card" th:fragment="Ern">
-		<div class="card-header">
+	<div class="accordion-item" th:fragment="Ern">
+		<h2 class="accordion-header" id="headingErn">
 			<button
-				th:text="${resultTypes.get(T(ru.tfoms.applgar.service.PersDataService.Show).Ern)}"
-				class="btn btn-link" data-toggle="collapse"
-				data-target="#collapseErn" aria-expanded="false"
+				th:text="${resultTypes.get(T(ru.sartfoms.personinfo.service.PersonDataService.Show).Ern)}"
+				class="accordion-button collapsed" data-bs-toggle="collapse"
+				data-bs-target="#collapseErn" aria-expanded="false"
 				aria-controls="collapseErn"></button>
-		</div>
-		<div id="collapseErn" class="collapse" aria-labelledby="headingOne"
-			data-parent="#accordion">
-			<div class="card-body">
+		</h2>
+		<div id="collapseErn" class="accordion-collapse collapse"
+			aria-labelledby="headingErn" data-bs-parent="#accordion">
+			<div class="accordion-body">
 				<table class="table table-sm" th:if="${erns.size > 0}">
 					<thead>
 						<tr class="small">
@@ -522,6 +520,6 @@
 				</table>
 			</div>
 		</div>
-	</div>-->
+	</div>
 </body>
 </html>

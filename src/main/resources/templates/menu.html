@@ -24,8 +24,12 @@
 					<li class="nav-item"><a class="nav-link"
 						th:classappend="${#httpServletRequest.servletPath} == '/persdata' ? 'active' : ''"
 						href="/persdata">getPersonData/getPersonDataHistory</a></li>
-					<li class="nav-item"><a class="nav-link" href="#">findPersonsByPersCriteria</a></li>
-					<li class="nav-item"><a class="nav-link" href="#">getMergeAncessorOip</a></li>
+					<li class="nav-item"><a class="nav-link"
+						th:classappend="${#httpServletRequest.servletPath} == '/perscrit' ? 'active' : ''"
+						href="/perscrit">findPersonsByPersCriteria</a></li>
+					<li class="nav-item"><a class="nav-link"
+						th:classappend="${#httpServletRequest.servletPath} == '/ancessor' ? 'active' : ''"
+						href="/ancessor">getMergeAncessorOip</a></li>
 				</ul>
 			</div>
 			<form th:action="@{/logout}" method="post">
