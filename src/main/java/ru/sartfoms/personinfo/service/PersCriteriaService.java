@@ -4,8 +4,6 @@ import static ru.sartfoms.personinfo.util.DateValidator.DATE_TIME_FORMATTER;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.Period;
-import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
 import javax.validation.Valid;
@@ -59,57 +57,26 @@ public class PersCriteriaService {
 		return dataPage;
 	}
 
-	public void validate(@Valid PersCritParameters persCritSParam, BindingResult bindingResult) {
-		String lastName = persCritSParam.getLastName().trim();
-		String firstName = persCritSParam.getFirstName().trim();
-		String patronymic = persCritSParam.getPatronymic().trim();
-		final Long maxPeriod = 11L;
-		if (!lastName.isEmpty() || !firstName.isEmpty() || !patronymic.isEmpty()) {
-			final Integer minLength = 3;
-			if (persCritSParam.getTerrOkato().isEmpty())
-				bindingResult.rejectValue("terrOkato", null);
-			if (!lastName.isEmpty() && lastName.length() < minLength)
-				bindingResult.rejectValue("lastName", null);
-			if (!firstName.isEmpty() && firstName.length() < minLength)
-				bindingResult.rejectValue("firstName", null);
-			if (!patronymic.isEmpty() && patronymic.length() < minLength)
-				bindingResult.rejectValue("patronymic", null);
-		} else if (!persCritSParam.getTerrOkato().isEmpty()) {
-			bindingResult.addError(new ObjectError("globalError",
-					"(часть Фамилии или/и часть Имени или/и часть Отчества) и ОКАТО - обязательное сочетание"));
-		} else if (!persCritSParam.getBirthDayFrom().isEmpty()) {
-			bindingResult.addError(new ObjectError("globalError",
-					"(часть Фамилии или/и часть Имени или/и часть Отчества) и ДР (с... по...) - обязательное сочетание"));
-		} else if (!persCritSParam.getOksm().isEmpty()) {
-			bindingResult.addError(new ObjectError("globalError", "Гражданство и ОКАТО - обязательное сочетание"));
-		} else if (!persCritSParam.getDeathDateFrom().isEmpty()) {
-			bindingResult.addError(
-					new ObjectError("globalError", "Дата смерти (с... по...) и ОКАТО  - обязательное сочетание"));
-		} else if (persCritSParam.getPcyNum().isEmpty() && persCritSParam.getDudlNum().isEmpty()
-				&& persCritSParam.getSnils().isEmpty()) {
+	public void validate(@Valid PersCritParameters searchParams, BindingResult bindingResult) {
+		String lastName = searchParams.getLastName().trim();
+		String firstName = searchParams.getFirstName().trim();
+		String patronymic = searchParams.getPatronymic().trim();
+		if (searchParams.getOip().isEmpty() && searchParams.getPcyNum().isEmpty() && searchParams.getDudlNum().isEmpty()
+				&& searchParams.getSnils().isEmpty() && lastName.isEmpty() && firstName.isEmpty()
+				&& patronymic.isEmpty() && searchParams.getErn().trim().isEmpty()) {
 			bindingResult.addError(new ObjectError("globalError", "Необходимо задать критерии поиска!"));
+			return;
 		}
-		if (areDatesValid(persCritSParam, bindingResult)) {
-			if (!persCritSParam.getBirthDayFrom().isEmpty() && !persCritSParam.getBirthDayTo().isEmpty()) {
-				if (howManyMonthsBetweenTwoDates(persCritSParam.getBirthDayFrom(),
-						persCritSParam.getBirthDayTo()) > maxPeriod)
-					bindingResult.rejectValue("birthDayTo", null);
-			}
-			if (!persCritSParam.getDeathDateFrom().isEmpty() && !persCritSParam.getDeathDateTo().isEmpty()) {
-				if (howManyMonthsBetweenTwoDates(persCritSParam.getDeathDateFrom(),
-						persCritSParam.getDeathDateTo()) > maxPeriod)
-					bindingResult.rejectValue("deathDateTo", null);
-			}
+		if (areDatesValid(searchParams, bindingResult)) {
 		}
-	}
-
-	public long howManyMonthsBetweenTwoDates(String effectiveStr, String expirationStr) {
-		DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("uuuu-MM-dd");
-		LocalDate effective = LocalDate.parse(effectiveStr, dateTimeFormatter);
-		LocalDate expiration = LocalDate.parse(expirationStr, dateTimeFormatter);
-		Period period = Period.between(effective, expiration);
-
-		return period.toTotalMonths();
+		if (searchParams.getDudlType() != null && searchParams.getDudlNum().trim().isEmpty()) {
+			bindingResult.rejectValue("dudlNum", "");
+		} else if (!searchParams.getDudlNum().trim().isEmpty() && searchParams.getDudlType() == null) {
+			bindingResult.rejectValue("dudlType", "");
+		}
+		if (!searchParams.getPolicyType().isEmpty() && searchParams.getPcyNum().trim().isEmpty()) {
+			bindingResult.rejectValue("pcyNum", "");
+		}
 	}
 
 	private boolean areDatesValid(@Valid PersCritParameters persCritSParam, BindingResult bindingResult) {
@@ -135,6 +102,10 @@ public class PersCriteriaService {
 		} else if (!persCritSParam.getDt().isEmpty() && !DateValidator.isValid(persCritSParam.getDt())) {
 			bindingResult.rejectValue("dt", null);
 			res = false;
+		} else if (!persCritSParam.getDudlEffDate().isEmpty()
+				&& !DateValidator.isValid(persCritSParam.getDudlEffDate())) {
+			bindingResult.rejectValue("dudlEffDate", null);
+			res = false;
 		}
 
 		return res;
@@ -149,9 +120,19 @@ public class PersCriteriaService {
 		critData.setFirstName(persCritSParam.getFirstName().trim());
 		critData.setPatronymic(persCritSParam.getPatronymic().trim());
 		critData.setOldsfp(persCritSParam.getOldsfp());
-		critData.setDost(persCritSParam.getDost());
-		critData.setOksm(persCritSParam.getOksm());
-		critData.setNoCitizenship(persCritSParam.getNoCitizenship());
+		StringBuilder dostBuilder = new StringBuilder();
+		if (critData.getFirstName().isEmpty())
+			dostBuilder.append("3");
+		if (critData.getLastName().isEmpty())
+			dostBuilder.append("2");
+		if (critData.getPatronymic().isEmpty())
+			dostBuilder.append("1");
+		critData.setDost(dostBuilder.length() > 0 ? dostBuilder.toString() : null);
+		if (persCritSParam.getOksm().isEmpty()) {
+			critData.setNoCitizenship(persCritSParam.getNoCitizenship());
+		} else {
+			critData.setOksm(persCritSParam.getOksm());
+		}
 		critData.setBirthDayFrom(!persCritSParam.getBirthDayFrom().isEmpty()
 				? LocalDate.parse(persCritSParam.getBirthDayFrom(), DATE_TIME_FORMATTER)
 				: null);
@@ -171,6 +152,9 @@ public class PersCriteriaService {
 		critData.setDudlType(persCritSParam.getDudlType());
 		critData.setDudlSer(persCritSParam.getDudlSer().trim());
 		critData.setDudlNum(persCritSParam.getDudlNum().trim());
+		critData.setDudlEffDate(!persCritSParam.getDudlEffDate().isEmpty()
+				? LocalDate.parse(persCritSParam.getDudlEffDate(), DATE_TIME_FORMATTER)
+				: null);
 		critData.setSnils(persCritSParam.getSnils().trim());
 		critData.setBirthDay(!persCritSParam.getBirthDay().isEmpty()
 				? LocalDate.parse(persCritSParam.getBirthDay(), DATE_TIME_FORMATTER)

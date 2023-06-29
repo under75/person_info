@@ -36,6 +36,8 @@ import ru.sartfoms.personinfo.entity.Contact;
 import ru.sartfoms.personinfo.entity.Dudl;
 import ru.sartfoms.personinfo.entity.Ern;
 import ru.sartfoms.personinfo.entity.House;
+import ru.sartfoms.personinfo.entity.InsuranceStatus;
+import ru.sartfoms.personinfo.entity.InsuranceStatusRes;
 import ru.sartfoms.personinfo.entity.MPIError;
 import ru.sartfoms.personinfo.entity.MergeAncessorOip;
 import ru.sartfoms.personinfo.entity.PersCriteria;
@@ -47,6 +49,7 @@ import ru.sartfoms.personinfo.entity.Snils;
 import ru.sartfoms.personinfo.entity.SocialStatus;
 import ru.sartfoms.personinfo.exception.ExcelGeneratorException;
 import ru.sartfoms.personinfo.model.AncessorOipParameters;
+import ru.sartfoms.personinfo.model.InsurStatusParameters;
 import ru.sartfoms.personinfo.model.PersCritParameters;
 import ru.sartfoms.personinfo.model.PersDataParameters;
 import ru.sartfoms.personinfo.service.AddressService;
@@ -56,6 +59,8 @@ import ru.sartfoms.personinfo.service.DudlService;
 import ru.sartfoms.personinfo.service.DudlTypeService;
 import ru.sartfoms.personinfo.service.ErnService;
 import ru.sartfoms.personinfo.service.ExcelService;
+import ru.sartfoms.personinfo.service.InsuranceStatusResService;
+import ru.sartfoms.personinfo.service.InsuranceStatusService;
 import ru.sartfoms.personinfo.service.MPIErrorService;
 import ru.sartfoms.personinfo.service.MergeAncessorOipService;
 import ru.sartfoms.personinfo.service.OkatoService;
@@ -88,6 +93,8 @@ public class AppController {
 	private final DudlTypeService dudlTypeService;
 	private final PersCriteriaResService persCriteriaResService;
 	private final MergeAncessorOipService mergeAncessorOipService;
+	private final InsuranceStatusService insuranceStatusService;
+	private final InsuranceStatusResService insuranceStatusResService;
 	@Autowired
 	SmartValidator validator;
 
@@ -97,7 +104,7 @@ public class AppController {
 			SocialStatusService socialStatusService, ErnService ernService, ExcelService excelService,
 			PersCriteriaService persCriteriaService, OkatoService okatoService, OksmService oksmService,
 			DudlTypeService dudlTypeService, PersCriteriaResService persCriteriaResService,
-			MergeAncessorOipService mergeAncessorOipService) {
+			MergeAncessorOipService mergeAncessorOipService, InsuranceStatusService insuranceStatusService, InsuranceStatusResService insuranceStatusResService) {
 		this.personDataService = personDataService;
 		this.personService = personService;
 		this.policyService = policyService;
@@ -116,6 +123,8 @@ public class AppController {
 		this.dudlTypeService = dudlTypeService;
 		this.persCriteriaResService = persCriteriaResService;
 		this.mergeAncessorOipService = mergeAncessorOipService;
+		this.insuranceStatusService = insuranceStatusService;
+		this.insuranceStatusResService = insuranceStatusResService;
 	}
 
 	@RequestMapping("/")
@@ -130,11 +139,11 @@ public class AppController {
 
 		model.addAttribute("policyTypes", policyType);
 		model.addAttribute("resultTypes", resultType);
-		model.addAttribute("dudlTypes", personDataService.getDudlTypes());
+		model.addAttribute("dudlTypes", dudlTypeService.findAll());
 
 		Optional<Integer> page = Optional.of(1);
-		Page<PersonData> persDataPage = personDataService.getDataPage(searchParams, userName, page);
-		model.addAttribute("persDataPage", persDataPage);
+		Page<PersonData> dataPage = personDataService.getDataPage(searchParams, userName, page);
+		model.addAttribute("dataPage", dataPage);
 
 		return "person-data-form";
 	}
@@ -147,7 +156,7 @@ public class AppController {
 
 		model.addAttribute("policyTypes", policyType);
 		model.addAttribute("resultTypes", resultType);
-		model.addAttribute("dudlTypes", personDataService.getDudlTypes());
+		model.addAttribute("dudlTypes", dudlTypeService.findAll());
 
 		if (!page.isPresent()) {
 			personDataService.validate(searchParams, bindingResult);
@@ -157,23 +166,23 @@ public class AppController {
 		if (!bindingResult.hasErrors() && !page.isPresent())
 			personDataService.saveRequest(searchParams, userName);
 
-		Page<PersonData> persDataPage = personDataService.getDataPage(searchParams, userName, page);
-		model.addAttribute("persDataPage", persDataPage);
+		Page<PersonData> dataPage = personDataService.getDataPage(searchParams, userName, page);
+		model.addAttribute("dataPage", dataPage);
 
 		return "person-data-form";
 	}
 
 	@PostMapping("/persdata/excel")
 	@ResponseBody
-	public ResponseEntity<?> download(Model model, @ModelAttribute("persSParam") PersDataParameters persSParam) {
-		if (persSParam.getSelectedRows() == null) {
+	public ResponseEntity<?> download(Model model, @ModelAttribute("searchParams") PersDataParameters searchParams) {
+		if (searchParams.getSelectedRows() == null) {
 			return new ResponseEntity<String>("<h1>Не выбраны строки для отчета в Excel</h1>", HttpStatus.BAD_REQUEST);
 		}
 		ResponseEntity<?> resource;
 		try {
 			resource = ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=report.xlsx")
 					.contentType(MediaType.parseMediaType("application/vnd.ms-excel"))
-					.body(new InputStreamResource(excelService.createExcel(persSParam.getSelectedRows())));
+					.body(new InputStreamResource(excelService.createExcel(searchParams.getSelectedRows())));
 		} catch (IOException | ExcelGeneratorException e) {
 			return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
@@ -254,21 +263,21 @@ public class AppController {
 	@GetMapping("/perscrit")
 	public String persCriteriaForm(Model model) throws ParseException {
 		String userName = SecurityContextHolder.getContext().getAuthentication().getName();
-		PersCritParameters persCritSParam = new PersCritParameters();
-		model.addAttribute("persCritSParam", persCritSParam);
+		PersCritParameters formParams = new PersCritParameters();
+		model.addAttribute("searchParams", formParams);
 		model.addAttribute("okatos", okatoService.findAll());
 		model.addAttribute("oksms", oksmService.findAll());
 		model.addAttribute("policyTypes", policyType);
 		model.addAttribute("dudlTypes", dudlTypeService.findAll());
 
-		Page<PersCriteria> persCritDataPage = persCriteriaService.getDataPage(persCritSParam, userName, Optional.of(1));
-		model.addAttribute("persCritDataPage", persCritDataPage);
+		Page<PersCriteria> dataPage = persCriteriaService.getDataPage(formParams, userName, Optional.of(1));
+		model.addAttribute("dataPage", dataPage);
 
 		return "person-crit-form";
 	}
 
 	@PostMapping("/perscrit")
-	public String persCriteriaForm(Model model, @ModelAttribute("persCritSParam") PersCritParameters persCritSParam,
+	public String persCriteriaForm(Model model, @ModelAttribute("searchParams") PersCritParameters persCritSParam,
 			BindingResult bindingResult, @RequestParam("page") Optional<Integer> page) throws ParseException {
 		String userName = SecurityContextHolder.getContext().getAuthentication().getName();
 		model.addAttribute("okatos", okatoService.findAll());
@@ -285,8 +294,8 @@ public class AppController {
 			persCriteriaService.saveRequest(persCritSParam, userName);
 		}
 
-		Page<PersCriteria> persCritDataPage = persCriteriaService.getDataPage(persCritSParam, userName, page);
-		model.addAttribute("persCritDataPage", persCritDataPage);
+		Page<PersCriteria> dataPage = persCriteriaService.getDataPage(persCritSParam, userName, page);
+		model.addAttribute("dataPage", dataPage);
 
 		return "person-crit-form";
 	}
@@ -315,8 +324,8 @@ public class AppController {
 		model.addAttribute("searchParams", formParams);
 
 		Optional<Integer> page = Optional.of(1);
-		Page<MergeAncessorOip> persDataPage = mergeAncessorOipService.getDataPage(formParams, userName, page);
-		model.addAttribute("persDataPage", persDataPage);
+		Page<MergeAncessorOip> dataPage = mergeAncessorOipService.getDataPage(formParams, userName, page);
+		model.addAttribute("dataPage", dataPage);
 
 		return "ancessor-oip";
 
@@ -333,8 +342,8 @@ public class AppController {
 		if (!bindingResult.hasErrors() && !page.isPresent())
 			mergeAncessorOipService.saveRequest(searchParams, userName);
 
-		Page<MergeAncessorOip> persDataPage = mergeAncessorOipService.getDataPage(searchParams, userName, page);
-		model.addAttribute("persDataPage", persDataPage);
+		Page<MergeAncessorOip> dataPage = mergeAncessorOipService.getDataPage(searchParams, userName, page);
+		model.addAttribute("dataPage", dataPage);
 
 		return "ancessor-oip";
 
@@ -350,6 +359,62 @@ public class AppController {
 		}
 
 		return "error/404";
+	}
+	
+	@GetMapping("/insurstat")
+	public String insuranceStatus(Model model) {
+		String userName = SecurityContextHolder.getContext().getAuthentication().getName();
+
+		InsurStatusParameters formParams = new InsurStatusParameters();
+		model.addAttribute("searchParams", formParams);
+		model.addAttribute("policyTypes", policyType);
+		model.addAttribute("dudlTypes", dudlTypeService.findAll());
+
+		Optional<Integer> page = Optional.of(1);
+		Page<InsuranceStatus> dataPage = insuranceStatusService.getDataPage(formParams, userName, page);
+		model.addAttribute("dataPage", dataPage);
+
+		return "insurance-status-form";
+	}
+	
+	@PostMapping("/insurstat")
+	public String insuranceStatus(Model model, @ModelAttribute("searchParams") InsurStatusParameters searchParams,
+			BindingResult bindingResult, @RequestParam("page") Optional<Integer> page) {
+
+		String userName = SecurityContextHolder.getContext().getAuthentication().getName();
+
+		model.addAttribute("policyTypes", policyType);
+		model.addAttribute("dudlTypes", dudlTypeService.findAll());
+
+		if (!page.isPresent()) {
+			insuranceStatusService.validate(searchParams, bindingResult);
+			validator.validate(searchParams, bindingResult);
+		}
+
+		if (!bindingResult.hasErrors() && !page.isPresent())
+			insuranceStatusService.saveRequest(searchParams, userName);
+
+		Page<InsuranceStatus> dataPage = insuranceStatusService.getDataPage(searchParams, userName, page);
+		model.addAttribute("dataPage", dataPage);
+
+		return "insurance-status-form";
+	}
+	
+	@PostMapping("/insurstat/res")
+	public String insuranceStatusResult(Model model, @RequestParam("rid") Long rid) {
+
+		Collection<MPIError> errors = mpiErrorService.findAllByRid(rid);
+		if (errors.size() > 0) {
+			model.addAttribute("errors", errors);
+			return "mpi-err";
+		}
+		
+		model.addAttribute("policyTypes", policyType);
+		Collection<InsuranceStatusRes> persons = insuranceStatusResService.findAllByRid(rid);
+		model.addAttribute("persons", persons);
+
+		return "insurance-status-res";
+
 	}
 
 }

@@ -53,7 +53,7 @@ public class PersDataParameters {
 		return policyNum;
 	}
 	public void setOip(String oip) {
-		this.oip = oip;
+		this.oip = oip.trim();
 	}
 	public void setPolicyType(String policyType) {
 		this.policyType = policyType;

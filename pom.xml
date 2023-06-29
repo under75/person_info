@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>ru.sartfoms</groupId>
 	<artifactId>person-info</artifactId>
-	<version>0.0.2</version>
+	<version>5.0</version>
 	<name>person-info</name>
 	<description>Предоставление сведений о персоне</description>
 	<properties>
@@ -46,12 +46,6 @@
 			<artifactId>ojdbc8</artifactId>
 			<scope>runtime</scope>
 			<version>12.2.0.1</version>
-		</dependency>
-		<dependency>
-			<groupId>org.hsqldb</groupId>
-			<artifactId>hsqldb</artifactId>
-			<version>2.5.2</version>
-			<scope>runtime</scope>
 		</dependency>
 		<dependency>
 			<groupId>commons-codec</groupId>

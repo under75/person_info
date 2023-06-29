@@ -274,4 +274,13 @@ public class PersonData {
 	public void setDtIns(LocalDateTime dtIns) {
 		this.dtIns = dtIns;
 	}
+
+	public LocalDate getDudlEffDate() {
+		return dudlEffDate;
+	}
+
+	public void setDudlEffDate(LocalDate dudlEffDate) {
+		this.dudlEffDate = dudlEffDate;
+	}
+	
 }

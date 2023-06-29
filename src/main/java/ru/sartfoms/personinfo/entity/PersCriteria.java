@@ -89,6 +89,9 @@ public class PersCriteria {
 	@Column(name = "dudlnum")
 	private String dudlNum;
 	
+	@Column(name = "dudldateb")
+	private LocalDate dudlEffDate;
+	
 	@Column(name = "snils")
 	private String snils;
 	
@@ -348,6 +351,14 @@ public class PersCriteria {
 
 	public void setDtIns(LocalDateTime dtIns) {
 		this.dtIns = dtIns;
+	}
+
+	public LocalDate getDudlEffDate() {
+		return dudlEffDate;
+	}
+
+	public void setDudlEffDate(LocalDate dudlEffDate) {
+		this.dudlEffDate = dudlEffDate;
 	}
 
 }

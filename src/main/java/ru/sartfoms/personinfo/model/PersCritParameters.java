@@ -11,7 +11,6 @@ public class PersCritParameters {
 	@Size(max=40)
 	private String patronymic;
 	private Boolean oldsfp;
-	private String dost;
 	private String oksm;
 	private Boolean noCitizenship;
 	private String birthDayFrom;
@@ -31,6 +30,7 @@ public class PersCritParameters {
 	private String dudlSer;
 	@Size(max=20)
 	private String dudlNum;
+	private String dudlEffDate;
 	@Size(max=14)
 	private String snils;
 	private String birthDay;
@@ -78,14 +78,6 @@ public class PersCritParameters {
 
 	public void setOldsfp(Boolean oldsfp) {
 		this.oldsfp = oldsfp;
-	}
-
-	public String getDost() {
-		return dost;
-	}
-
-	public void setDost(String dost) {
-		this.dost = dost;
 	}
 
 	public String getOksm() {
@@ -141,7 +133,7 @@ public class PersCritParameters {
 	}
 
 	public void setOip(String oip) {
-		this.oip = oip;
+		this.oip = oip.trim();
 	}
 
 	public String getPolicyType() {
@@ -246,6 +238,14 @@ public class PersCritParameters {
 
 	public void setDateTo(String dateTo) {
 		this.dateTo = dateTo;
+	}
+
+	public String getDudlEffDate() {
+		return dudlEffDate;
+	}
+
+	public void setDudlEffDate(String dudlEffDate) {
+		this.dudlEffDate = dudlEffDate;
 	}
 
 }

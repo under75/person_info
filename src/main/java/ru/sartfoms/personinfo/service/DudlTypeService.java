@@ -16,6 +16,7 @@ public class DudlTypeService {
 	}
 
 	public Collection<DudlType> findAll() {
-		return dudlTypeRepository.findAll();
+		return dudlTypeRepository.findAllByOrderByDocName();
 	}
+	
 }

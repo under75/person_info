@@ -5,13 +5,13 @@
 <meta charset="utf-8">
 <meta http-equiv="x-ua-compatible" content="ie=edge">
 <title
-	th:text="${@environment.getProperty('app.name')} + ' - Результат, полученный методом findPersonsByPersCriteria'"></title>
+	th:text="${@environment.getProperty('app.name')} + ' - Результат, полученный методом getInsuranceStatus'"></title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet"
 	th:href="@{/webjars/bootstrap/5.2.3/css/bootstrap.min.css}" />
 </head>
 <body>
-	<div class="container">
+	<div class="container-fluid">
 		<br />
 		<div class="card border-info">
 			<div class="card-header text-white bg-info">Персональные данные, найденные по
@@ -20,21 +20,30 @@
 				<table class="table table-sm">
 					<thead>
 						<tr class="small">
+							<th>ОИП</th>
 							<th>ФИО</th>
-							<th>ЕНП</th>
 							<th>Дата рождения</th>
 							<th>Пол</th>
-							<th>ОИП</th>
+							<th>Тип полиса</th>
+							<th>Серия полиса</th>
+							<th>Номер полиса</th>
+							<th>Статус полиса</th>
+							<th>Код СМО</th>
+							<th>Территория страхования </th>
 						</tr>
 					</thead>
 					<tbody>
 						<tr th:each="person : ${persons}" class='small'>
-							<td th:text="${person.fio}" />
-							<td th:text="${person.enp}" />
-							<td
-								th:text="${#temporals.format(person.birthDay, 'dd.MM.yyyy')}" />
-							<td th:text="${person.gender == 1 ? 'М' : person.gender == 2 ? 'Ж' : '?'}" />
 							<td th:text="${person.oip}" />
+							<td th:text="${person.fio}" />
+							<td th:text="${#temporals.format(person.birthDay, 'dd.MM.yyyy')}" />
+							<td th:text="${person.gender == 1 ? 'М' : person.gender == 2 ? 'Ж' : '?'}" />							
+							<td th:text="${policyTypes.get(person.pcyType)}" />
+							<td th:text="${person.pcySer}" />
+							<td th:text="${person.pcyNum}" />
+							<td th:text="${person.pcyStatus}" />
+							<td th:text="${person.smoCode}" />
+							<td th:text="${person.terr != null ? person.terr.title : person.terrCode}" />
 						</tr>
 					</tbody>
 				</table>
@@ -43,7 +52,7 @@
 			</div>
 		</div>
 	</div>
-	<footer class="text-center text-lg-start"
+	<footer class="text-center text-lg-start fixed-bottom"
 		th:fragment="footer" th:insert="copyright">
 	</footer>
 	<script th:src="@{/webjars/bootstrap/5.2.3/js/bootstrap.bundle.min.js}"></script>

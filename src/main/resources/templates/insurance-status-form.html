@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta http-equiv="x-ua-compatible" content="ie=edge">
 <title
-	th:text="${@environment.getProperty('app.name')} + ' - getPersonData/getPersonDataHistory'"></title>
+	th:text="${@environment.getProperty('app.name')} + ' - getInsuranceStatus'"></title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet"
 	th:href="@{/webjars/bootstrap/5.2.3/css/bootstrap.min.css}" />
@@ -13,13 +13,13 @@
 <body>
 	<div class="container">
 		<div th:insert="menu :: navbar"></div>
-		<nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+		<nav style="-bs-breadcrumb-divider: '&gt;';" aria-label="breadcrumb">
 			<ol class="breadcrumb ">
 				<li class="breadcrumb-item"><a href="/">PersonInfoService</a></li>
-				<li class="breadcrumb-item active" aria-current="page">getPersonData/getPersonDataHistory</li>
+				<li class="breadcrumb-item active" aria-current="page">getInsuranceStatus</li>
 			</ol>
 		</nav>
-		<form th:method="POST" th:action="@{/persdata}" id="persForm">
+		<form th:method="POST" th:action="@{/insurstat}" id="persForm">
 			<div class="row">
 				<div class="col-sm">
 					<div class="form-group">
@@ -111,42 +111,6 @@
 			<div class="row">
 				<div class="col-sm">
 					<div class="form-group">
-						<label class="col-form-label col-form-label-sm" for="lastName">Фамилия</label>
-						<input type="text" th:field="*{searchParams.lastName}"
-							id="lastName" class="form-control form-control-sm"
-							th:classappend="${#fields.hasErrors('searchParams.lastName')} ? 'is-invalid' : ''"
-							placeholder="фамилия" />
-						<div class="invalid-feedback"
-							th:if="${#fields.hasErrors('searchParams.firstName')}"
-							th:errors="*{searchParams.lastName}"></div>
-					</div>
-				</div>
-				<div class="col-sm">
-					<div class="form-group">
-						<label class="col-form-label col-form-label-sm" for="firstName">Имя</label>
-						<input type="text" th:field="*{searchParams.firstName}"
-							id="firstName" class="form-control form-control-sm"
-							th:classappend="${#fields.hasErrors('searchParams.firstName')} ? 'is-invalid' : ''"
-							placeholder="имя" />
-						<div class="invalid-feedback"
-							th:if="${#fields.hasErrors('searchParams.firstName')}"
-							th:errors="*{searchParams.firstName}"></div>
-					</div>
-				</div>
-				<div class="col-sm">
-					<div class="form-group">
-						<label class="col-form-label col-form-label-sm" for="patronymic">Отчество</label>
-						<input type="text" th:field="*{searchParams.patronymic}"
-							id="patronymic" class="form-control form-control-sm"
-							th:classappend="${#fields.hasErrors('searchParams.patronymic')} ? 'is-invalid' : ''"
-							placeholder="отчество" />
-						<div class="invalid-feedback"
-							th:if="${#fields.hasErrors('searchParams.patronymic')}"
-							th:errors="*{searchParams.patronymic}"></div>
-					</div>
-				</div>
-				<div class="col-sm">
-					<div class="form-group">
 						<label class="col-form-label col-form-label-sm" for="snils">СНИЛС</label>
 						<input type="text" th:field="*{searchParams.snils}" id="snils"
 							class="form-control form-control-sm"
@@ -165,77 +129,28 @@
 							th:classappend="${#fields.hasErrors('searchParams.birthDay')} ? 'is-invalid' : ''" />
 					</div>
 				</div>
-			</div>
-			<div class="row">
 				<div class="col-sm">
 					<div class="form-group">
-						<label class="col-form-label col-form-label-sm" for="historical">Тип
-							поиска</label> <select class="form-select form-select-sm"
-							th:onchange="|changeAccess(this.value)|"
-							th:field="*{searchParams.historical}">
-							<option value="0">Актуально на дату</option>
-							<option value="1">Искать в истории</option>
-						</select>
-					</div>
-				</div>
-				<div class="col-sm">
-					<div class="form-group">
-						<label class="col-form-label col-form-label-sm" for="dt">На
-							дату</label><input type="date" th:field="*{searchParams.dt}" id="dt"
+						<label class="col-form-label col-form-label-sm" for="dt">Дата, на которую выдать состояние</label><input type="date" th:field="*{searchParams.dt}" id="dt"
 							class="form-control form-control-sm"
-							th:disabled="${searchParams.historical}"
 							title="состояние на дату"
 							th:classappend="${#fields.hasErrors('searchParams.dt')} ? 'is-invalid' : ''" />
 					</div>
 				</div>
-				<div class="col-sm">
-					<div class="form-group">
-						<label class="col-form-label col-form-label-sm" for="dtFrom">Начало
-							периода истории</label><input type="date"
-							th:field="*{searchParams.dtFrom}" id="dtFrom"
-							class="form-control form-control-sm"
-							th:disabled="${!searchParams.historical}" title="начало периода"
-							th:classappend="${#fields.hasErrors('searchParams.dtFrom')} ? 'is-invalid' : ''" />
-					</div>
-				</div>
-				<div class="col-sm">
-					<div class="form-group">
-						<label class="col-form-label col-form-label-sm" for="dtTo">Конец
-							периода истории</label><input type="date" th:field="*{searchParams.dtTo}"
-							id="dtTo" class="form-control form-control-sm"
-							th:disabled="${!searchParams.historical}" title="конец периода"
-							th:classappend="${#fields.hasErrors('searchParams.dtTo')} ? 'is-invalid' : ''" />
-					</div>
-				</div>
 			</div>
-			<hr>
-			<div class="row">
-				<div class="col-sm">
-					<div class="form-check form-check-inline"
-						th:each="resultTypeEntry : ${resultTypes.entrySet}">
-						<input class="form-check-input" type="checkbox"
-							th:id="${resultTypeEntry.key}" th:value="${resultTypeEntry.key}"
-							th:checked="${searchParams.show != null && searchParams.show.contains(resultTypeEntry.key.name())}"
-							name="show" /><label th:for="${resultTypeEntry.key}"
-							class="form-check-label" th:text="${resultTypeEntry.value}"></label>
-					</div>
-				</div>
-			</div>
-			<div class="badge text-bg-danger"
+			<span class="badge text-bg-danger" 
 				th:if="${#fields.hasErrors('searchParams')}"
-				th:errors="*{searchParams}"></div>
+				th:errors="*{searchParams}"></span>
 			<hr/>
 			<div class="row">
 				<div class="col-sm">
 					<input type="submit" value="Поиск" class="btn btn-sm btn-primary"
 						name="saveRequest" />&nbsp;<input type="button" value="Очистить"
-						onclick="location.href='/persdata'"
+						onclick="location.href='/insurstat'"
 						class="btn btn-sm btn-secondary" />&nbsp;<input type="button"
 						value="Обновить"
 						th:onclick="|goToPage(${dataPage.number + 1})|"
-						class="btn btn-sm btn-secondary" />&nbsp;<input type="button"
-						value="В Excel" th:onclick="|toExcel()|"
-						class="btn btn-sm btn-info" /><input type="hidden" id="page"
+						class="btn btn-sm btn-secondary" /><input type="hidden" id="page"
 						name="page" />
 				</div>
 			</div>
@@ -244,7 +159,6 @@
 				<table class="table table-sm">
 					<thead class="table-dark">
 						<tr class="small">
-							<th></th>
 							<th>Дата поиска</th>
 							<th>ОИП</th>
 							<th>Номер полиса</th>
@@ -252,9 +166,6 @@
 							<th>Номер ДУДЛ</th>
 							<th>СНИЛС</th>
 							<th>Дата рождения</th>
-							<th>Фамилия</th>
-							<th>Имя</th>
-							<th>Отчество</th>
 							<th>Актуально</th>
 						</tr>
 					</thead>
@@ -262,11 +173,6 @@
 						<tr th:each="persData, iStat : ${dataPage.content}"
 							class='clickable-row small'
 							th:classappend="|${persData.hasError != null && !persData.hasError ? 'table-success' : ''} ${persData.hasError != null && persData.hasError ? 'table-danger' : ''}|">
-							<td><input class="form-check-input" type="checkbox"
-								th:id="'ch'+${persData.rid}" th:value="${persData.rid}"
-								th:checked="${searchParams.selectedRows != null && searchParams.selectedRows.contains(persData.rid)}"
-								name="selectedRows"
-								th:if="${persData.hasError != null && !persData.hasError}" /></td>
 							<td
 								th:attr="data-rid=${persData.rid}, data-done=${persData.hasError != null}"
 								th:text="${#temporals.format(persData.dtIns, 'dd.MM.yyyy HH:mm:ss')}"
@@ -279,11 +185,8 @@
 							<td th:text="${persData.snils}" />
 							<td
 								th:text="${#temporals.format(persData.birthDay, 'dd.MM.yyyy')}" />
-							<td th:text="${persData.lastName}" />
-							<td th:text="${persData.firstName}" />
-							<td th:text="${persData.patronymic}" />
 							<td
-								th:text="${persData.dtFrom != null ? 'c ' + #temporals.format(persData.dtFrom, 'dd.MM.yyyy') : ''} + ${persData.dtTo != null ? ' по ' + #temporals.format(persData.dtTo, 'dd.MM.yyyy') : ''} + ${persData.dt != null ? 'на ' + #temporals.format(persData.dt, 'dd.MM.yyyy') : persData.dtFrom == null && persData.dtTo == null ? persData.historical != null ? 'вся история' : persData.dtIns != null ? 'на ' + #temporals.format(persData.dtIns, 'dd.MM.yyyy') : '' : ''}" />
+								th:text="${persData.dt != null ? 'на ' + #temporals.format(persData.dt, 'dd.MM.yyyy') : persData.dtIns != null ? 'на ' + #temporals.format(persData.dtIns, 'dd.MM.yyyy') : ''}" />
 						</tr>
 					</tbody>
 				</table>
@@ -324,12 +227,11 @@
 							</button>
 						</li>
 					</ul>
-
 				</nav>
 			</div>
 		</form>
 	</div>
-	<form th:method="POST" th:action="@{/persdata/res}" target="_blank" id="resForm">
+	<form th:method="POST" th:action="@{/insurstat/res}" target="_blank" id="resForm">
 		<input type="hidden" name="rid" />
 	</form>
 	<footer class="text-center text-lg-start" th:fragment="footer"
@@ -339,21 +241,6 @@
 			var key = e.charCode || e.keyCode || 0;
 			if (key == 13) {
 				e.preventDefault();
-			}
-		}
-		function changeAccess(historical) {
-			form = document.getElementById("persForm");
-			if (historical == 1) {
-				form.dt.setAttribute("disabled", "disabled");
-				form.dt.value = "";
-				form.dtFrom.removeAttribute("disabled");
-				form.dtTo.removeAttribute("disabled");
-			} else {
-				form.dt.removeAttribute("disabled");
-				form.dtFrom.setAttribute("disabled", "disabled");
-				form.dtFrom.value = "";
-				form.dtTo.setAttribute("disabled", "disabled");
-				form.dtTo.value = "";
 			}
 		}
 		function goToPage(page) {
@@ -367,13 +254,6 @@
 				form.submit();
 			}
 		}
-		function toExcel() {
-			form = document.getElementById("persForm");	
-			form.action = "/persdata/excel";
-			form.submit();
-			form.action = "/persdata";
-		}
 	</script>
 	<script th:src="@{/webjars/bootstrap/5.2.3/js/bootstrap.bundle.min.js}"></script>
 </body>
-</html>

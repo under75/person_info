@@ -2,7 +2,6 @@ package ru.sartfoms.personinfo.service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -14,21 +13,17 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
 
-import ru.sartfoms.personinfo.entity.DudlType;
 import ru.sartfoms.personinfo.entity.PersonData;
 import ru.sartfoms.personinfo.model.PersDataParameters;
-import ru.sartfoms.personinfo.repository.DudlTypeRepository;
 import ru.sartfoms.personinfo.repository.PersonDataRepository;
 import ru.sartfoms.personinfo.util.DateValidator;
 
 @Service
 public class PersonDataService {
 	private static final Integer PAGE_SIZE = 10;
-	private final DudlTypeRepository dudlTypeRepository;
 	private final PersonDataRepository personDataRepository;
 
-	public PersonDataService(DudlTypeRepository dudlTypeRepository, PersonDataRepository personDataRepository) {
-		this.dudlTypeRepository = dudlTypeRepository;
+	public PersonDataService(PersonDataRepository personDataRepository) {
 		this.personDataRepository = personDataRepository;
 	}
 
@@ -62,10 +57,6 @@ public class PersonDataService {
 		resultType.put(Show.Ern, "Данные ЕРН");
 	}
 
-	public Collection<DudlType> getDudlTypes() {
-		return dudlTypeRepository.findAllByOrderByDocName();
-	}
-
 	public Page<PersonData> getDataPage(PersDataParameters searchParams, String userName, Optional<Integer> page) {
 		int currentPage = page.orElse(1);
 		Page<PersonData> dataPage;
@@ -76,16 +67,18 @@ public class PersonDataService {
 				&& DateValidator.isValid(searchParams.getDateTo())) {
 			LocalDate start = LocalDate.parse(searchParams.getDateFrom());
 			LocalDate end = LocalDate.parse(searchParams.getDateTo()).plusDays(1);
-			dataPage = personDataRepository.findByUserAndDtInsBetweenOrderByDtInsDesc(userName, start.atStartOfDay(), end.atStartOfDay(),
-					pageRequest);
+			dataPage = personDataRepository.findByUserAndDtInsBetweenOrderByDtInsDesc(userName, start.atStartOfDay(),
+					end.atStartOfDay(), pageRequest);
 		} else if (searchParams.getDateFrom() != null && !searchParams.getDateFrom().isEmpty()
 				&& DateValidator.isValid(searchParams.getDateFrom())) {
 			LocalDate start = LocalDate.parse(searchParams.getDateFrom());
-			dataPage = personDataRepository.findByUserAndDtInsAfterOrderByDtInsDesc(userName, start.atStartOfDay(), pageRequest);
+			dataPage = personDataRepository.findByUserAndDtInsAfterOrderByDtInsDesc(userName, start.atStartOfDay(),
+					pageRequest);
 		} else if (searchParams.getDateTo() != null && !searchParams.getDateTo().isEmpty()
 				&& DateValidator.isValid(searchParams.getDateTo())) {
 			LocalDate end = LocalDate.parse(searchParams.getDateTo()).plusDays(1);
-			dataPage = personDataRepository.findByUserAndDtInsBeforeOrderByDtInsDesc(userName, end.atStartOfDay(), pageRequest);
+			dataPage = personDataRepository.findByUserAndDtInsBeforeOrderByDtInsDesc(userName, end.atStartOfDay(),
+					pageRequest);
 		} else {
 			dataPage = personDataRepository.findByUserOrderByDtInsDesc(userName, pageRequest);
 		}
@@ -110,6 +103,8 @@ public class PersonDataService {
 			personData.setDudlSer(searchParams.getDudlSer().trim());
 		if (!searchParams.getDudlNum().trim().isEmpty())
 			personData.setDudlNum(searchParams.getDudlNum().trim());
+		if (!searchParams.getDudlEffDate().isEmpty())
+			personData.setDudlEffDate(LocalDate.parse(searchParams.getDudlEffDate()));
 		if (!searchParams.getFirstName().trim().isEmpty())
 			personData.setFirstName(searchParams.getFirstName().trim());
 		if (!searchParams.getLastName().trim().isEmpty())
@@ -150,8 +145,13 @@ public class PersonDataService {
 				&& !DateValidator.isValid(searchParams.getBirthDay())) {
 			bindingResult.rejectValue("birthDay", "");
 		}
-		if (searchParams.getDt() != null && !searchParams.getDt().isEmpty() && !DateValidator.isValid(searchParams.getDt())) {
+		if (searchParams.getDt() != null && !searchParams.getDt().isEmpty()
+				&& !DateValidator.isValid(searchParams.getDt())) {
 			bindingResult.rejectValue("dt", "");
+		}
+		if (searchParams.getDudlEffDate() != null && !searchParams.getDudlEffDate().isEmpty()
+				&& !DateValidator.isValid(searchParams.getDudlEffDate())) {
+			bindingResult.rejectValue("dudlEffDate", null);
 		}
 		if (searchParams.getDtFrom() != null && !searchParams.getDtFrom().isEmpty()
 				&& !DateValidator.isValid(searchParams.getDtFrom())) {
@@ -161,7 +161,7 @@ public class PersonDataService {
 				&& !DateValidator.isValid(searchParams.getDtTo())) {
 			bindingResult.rejectValue("dtTo", "");
 		}
-		
+
 	}
 
 	public PersonData getPersonDataByRid(Long rid) {

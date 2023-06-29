@@ -33,7 +33,7 @@
 							<td th:text="${person.firstName}" />
 							<td th:text="${person.patronymic}" />
 							<td th:text="${#temporals.format(person.birthDay, 'dd.MM.yyyy')}" />
-							<td th:text="${person.gender == 1 ? 'М' : 'Ж'}" />
+							<td th:text="${person.gender == 1 ? 'М' : person.gender == 2 ? 'Ж' : '?'}" />
 							<td
 								th:text="${person.birthOksm != null ? person.birthOksm.name2 : ''}" />
 							<td
@@ -118,7 +118,7 @@
 
 					<div class="col-4 bg-light">Половая принадлежность</div>
 					<div class="col-8 bg-light"
-						th:text="${policy.gender == 1 ? 'М' : 'Ж'}"></div>
+						th:text="${policy.gender == 1 ? 'М' : policy.gender == 2 ? 'Ж' : '?'}" ></div>
 
 					<div class="col-4">Официальная СМО</div>
 					<div class="col-8" th:text="${policy.insurName}"></div>
