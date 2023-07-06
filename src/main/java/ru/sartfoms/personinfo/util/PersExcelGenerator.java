@@ -73,9 +73,9 @@ public class PersExcelGenerator extends ExcelGenerator {
 
 	@Override
 	protected void createHeader() {
-		Object[] columns = new String[] { "№", "OIP_RESP", "ENP", "PCYDATEB", "PCYTYPE", "PCYSTATUS", "DSOURCETYPE",
-				"SEX", "FAM", "IM", "OT", "DR", "BLANKNUM", "DUDLNUM", "DUDLSER", "DUDLDATEB", "DUDLDATEE",
-				"DUDLSTATUS", "SNILS", "PCYDATEE" };
+		Object[] columns = new String[] { "№", "ОИП", "Ном. пол.", "Нач. пол.", "Тип пол.", "Стат. пол.", "Источник",
+				"Пол", "Фамилия", "Имя", "Отчество", "Дата рожд.", "№ бланка", "Ном. ДУдЛ", "Сер. ДУдЛ", "Нач. ДУдЛ", "Оконч .ДУдЛ",
+				"Стат. ДУдЛ", "СНИЛС", "Оконч. полиса" };
 
 		CellStyle headerStyle = template.createCellStyle();
 		Font headerFont = template.createFont();

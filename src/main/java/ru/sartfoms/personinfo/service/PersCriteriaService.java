@@ -61,10 +61,10 @@ public class PersCriteriaService {
 		String lastName = searchParams.getLastName().trim();
 		String firstName = searchParams.getFirstName().trim();
 		String patronymic = searchParams.getPatronymic().trim();
-		if (searchParams.getOip().isEmpty() && searchParams.getPcyNum().isEmpty() && searchParams.getDudlNum().isEmpty()
+		if (searchParams.getPcyNum().isEmpty() && searchParams.getDudlNum().isEmpty()
 				&& searchParams.getSnils().isEmpty() && lastName.isEmpty() && firstName.isEmpty()
 				&& patronymic.isEmpty() && searchParams.getErn().trim().isEmpty()) {
-			bindingResult.addError(new ObjectError("globalError", "Необходимо задать критерии поиска!"));
+			bindingResult.addError(new ObjectError("globalError", "Должна быть указана минимум одна структура: - ФИО - Полис - ДУдЛ - СНИЛС - ЕРН"));
 			return;
 		}
 		if (areDatesValid(searchParams, bindingResult)) {
@@ -76,6 +76,9 @@ public class PersCriteriaService {
 		}
 		if (!searchParams.getPolicyType().isEmpty() && searchParams.getPcyNum().trim().isEmpty()) {
 			bindingResult.rejectValue("pcyNum", "");
+		}
+		if (!searchParams.getOksm().isEmpty() && searchParams.getTerrOkato().isEmpty()) {
+			bindingResult.rejectValue("terrOkato", "");
 		}
 	}
 

@@ -124,7 +124,9 @@ public class PersonDataService {
 		} else if (!searchParams.getDt().isEmpty()) {
 			personData.setDt(LocalDate.parse(searchParams.getDt()));
 		}
-		personData.setShow(searchParams.getShow() != null ? searchParams.getShow().replaceAll(",", " ") : null);
+		personData.setShow(searchParams.getShow() != null && searchParams.getShow().split(",").length < 9
+				? searchParams.getShow().replaceAll(",", " ")
+				: null);
 		personData.setUser(userName);
 		personData.setDtIns(LocalDateTime.now());
 

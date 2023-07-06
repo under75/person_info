@@ -289,15 +289,19 @@
 				</table>
 				<nav aria-label="Pagination" th:if="${dataPage.totalPages gt 0}">
 					<ul
-						class="pagination pagination-sm justify-content-center font-weight-medium">
-						<li>Дата поиска&nbsp;</li>
+						class="pagination pagination-sm justify-content-start font-weight-medium">
+						<li>Фильтр по дате поиска&nbsp;</li>
 						<li><input type="date" th:field="*{searchParams.dateFrom}"
 							class="form-control form-control-sm" id="dateFrom" /></li>
 						<li>&nbsp;-&nbsp;</li>
 						<li><input type="date" th:field="*{searchParams.dateTo}"
 							class="form-control form-control-sm" id="dateTo" /></li>
+						<li>&nbsp;<input type="button"
+						value="Применить"
+						th:onclick="|goToPage(${dataPage.number + 1})|"
+						class="btn btn-sm btn-secondary" /></li>
 						<li class="page-item"
-							th:classappend="${dataPage.number eq 0} ? 'disabled'">
+							th:classappend="${dataPage.number eq 0} ? 'disabled'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 							<button type="button" class="btn btn-sm btn-link"
 								th:classappend="${dataPage.number eq 0} ? 'disabled'"
 								th:onclick="|goToPage(${dataPage.number lt 2 ? 1 : dataPage.number})|">
